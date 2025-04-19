@@ -1,0 +1,31 @@
+# Configuration for the Config Server application itself (served by Config Server)
+# This file is less common to modify frequently unless changing Config Server behavior.
+server:
+  port: 8888 # Ensure this matches the port exposed in docker-compose.yml if running there
+
+# Tell the Config Server which backend profile to use
+spring:
+  profiles:
+    active: git # Or 'native'
+  cloud:
+    config:
+      server:
+        git:
+          uri: file:///config-repo # Default URI pointing inside the container when mounted
+          # Adjust if your config-repo is mounted elsewhere or remote
+          # uri: https://your-remote-git-repo.git
+          default-label: main # Or master
+          # Optional settings for performance/dev convenience
+          # clone-on-start: true
+          # force-pull: true
+          # native: # If using 'native' profile instead of 'git'
+          # search-locations: file:///config-repo # Path inside container
+
+# Optional: If Config Server should register with Eureka
+# eureka:
+#   client:
+#     enabled: true # Explicitly enable client registration for Config Server
+#     serviceUrl:
+#        defaultZone: ${EUREKA_URI:http://eureka-server:8761/eureka/}
+#   instance:
+#      prefer-ip-address: true

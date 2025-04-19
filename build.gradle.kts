@@ -1,7 +1,7 @@
 import org.gradle.internal.impldep.org.bouncycastle.jcajce.provider.symmetric.IDEA
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
@@ -11,7 +11,7 @@ plugins {
     idea
     id("org.springframework.boot") version "3.1.5" apply false
     id("io.spring.dependency-management") version "1.1.3" apply false
-    kotlin("jvm") version "1.8.22" apply false
+//    kotlin("jvm") version "1.8.22" apply false
     id("java")
 
 }
@@ -52,8 +52,8 @@ subprojects {
     }
 
     dependencies {
-        testImplementation("org.junit.jupiter:junit-jupter-api")
-        testRuntimeOnly("org.junit.jupiter.jupiter:junit-jupiter-engine")
+        testImplementation("org.junit.jupiter:junit-jupiter-api")
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     }
 
 

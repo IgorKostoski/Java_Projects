@@ -7,4 +7,5 @@ pluginManagement {
 
 rootProject.name = "Java_Projects"
 
-//include("healthcare_system");
+include("healthcare_system");
+

@@ -1,0 +1,54 @@
+# Default configuration applied to ALL microservices fetching from Config Server
+
+# Default Actuator settings (can be overridden by specific service configs)
+management:
+  endpoints:
+    web:
+      exposure:
+        # Expose common endpoints by default. Restrict further in production profiles.
+        include: health, info, prometheus
+  endpoint:
+    health:
+      show-details: always # Show details in health checks (useful for dev)
+  metrics:
+    tags:
+      # Automatically tag all metrics with the service name (read from service's bootstrap/application.yml)
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      # Sample most traces in dev/default profile. Reduce in production.
+      probability: 1.0 # Value between 0.0 and 1.0
+
+# Default Eureka client settings (used by most services)
+eureka:
+  client:
+    serviceUrl:
+      # Use environment variable or default to localhost Eureka for local dev.
+      # Use 'eureka-server' hostname when running inside Docker Compose network.
+      defaultZone: ${EUREKA_URI:http://eureka-server:8761/eureka/}
+    # Optional: Faster registration/heartbeat intervals for development
+    # instance:
+    #   lease-renewal-interval-in-seconds: 5
+    #   lease-expiration-duration-in-seconds: 10
+  instance:
+    # Prefer IP address for registration, often more reliable in containers.
+    prefer-ip-address: true
+
+# Default Zipkin settings
+spring:
+  zipkin:
+    base-url: ${ZIPKIN_URI:http://zipkin:9411/} # Use 'zipkin' hostname in Docker Compose network
+    # Optional: Configure sender type if needed (default is web)
+    # sender:
+    #   type: web # or rabbit, kafka
+  sleuth: # Legacy namespace but still influences Micrometer tracing sampling
+    sampler:
+      probability: ${management.tracing.sampling.probability:1.0} # Link to Micrometer probability
+
+# Default Logging (can be overridden)
+logging:
+  level:
+    root: INFO # Default level for libraries
+    com.healthcare: INFO # Default level for your application code (override in specific service configs for DEBUG)
+    org.springframework.web: INFO
+    org.hibernate: INFO
