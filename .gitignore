@@ -1,0 +1,107 @@
+# Java & Spring
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# Build output
+/build/
+/target/
+/out/
+
+# Gradle
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+gradle-app.setting
+gradle-app.iml
+gradle.properties
+gradlew
+gradlew.bat
+
+# Maven (in case of mix)
+.mvn/
+pom.xml.versionsBackup
+
+# IDEs
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata/
+
+# VS Code
+.vscode/
+
+# Logs
+logs/
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.DS_Store
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tests / Reports
+test-output/
+coverage/
+jacoco.exec
+*.ec
+*.lcov
+*.html
+
+# Spring Boot Specific
+.env
+application-*.yml
+application-*.properties
+local.properties
+
+# Docker
+docker-compose.override.yml
+*.pid
+*.seed
+*.db
+*.db-wal
+*.db-shm
+
+# Database files
+*.h2.db
+*.mv.db
+*.sqlite
+*.db
+*.sql
+
+# Redis/Mongo/Postgres Data
+data/
+dump.rdb
+mongod.lock
+
+# Kafka
+kafka-logs/
+zookeeper-logs/
+
+# Node/Frontend (if present)
+node_modules/
+dist/
+.env.local
+.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+# Shared libs / Generated sources
+/shared-libs/**/build/
+generated/
