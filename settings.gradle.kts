@@ -5,7 +5,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Java_Projects"
+rootProject.name = "java-projects-workspace"
 
-include("healthcare_system");
 
+includeBuild("healthcare_system")

@@ -1,0 +1,8 @@
+# Tell Eureka Server where to find the Config Server to get its configuration (eureka-server.yml)
+spring:
+  application:
+    name: eureka-server # Must match the name in config-repo/eureka-server.yml
+  cloud:
+    config:
+      uri: http://${CONFIG_SERVER_HOST:config-server}:8888 # Use 'config-server' hostname in Docker Compose
+      fail-fast: true # Fail startup if Config Server is unreachable

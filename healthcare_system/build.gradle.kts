@@ -1,43 +1,44 @@
-// healthcare-system/build.gradle.kts (REVISED - Leaner Root)
-
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
+// /Users/igorkostoski/Desktop/Java_Projects/healthcare-system/build.gradle.kts
+import org.springframework.boot.gradle.plugin.SpringBootPlugin // Make sure this import is present
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension // Import for explicit configuration type
 
 plugins {
+    // Define plugin versions available to healthcare modules
     id("org.springframework.boot") version "3.1.5" apply false
-    id("io.spring.dependency-management") version "1.1.3" apply false
-    // kotlin("jvm") version "1.8.22" apply false // Uncomment if using Kotlin
-    // kotlin("plugin.spring") version "1.8.22" apply false // Uncomment if using Kotlin
+    // Apply the dependency management plugin HERE directly to the healthcare-system project itself
+    // Also keep apply false so subprojects can apply it with the correct version if needed.
+    id("io.spring.dependency-management") version "1.1.3" apply true // Apply TRUE here for the healthcare project
     id("java")
 }
 
 val springCloudVersion = "2022.0.4"
-val resilience4jVersion = "2.1.0" // Define Resilience4j version centrally
+val resilience4jVersion = "2.1.0"
 
-allprojects {
+// Configurations applied to the healthcare-system project AND its subprojects (modules)
+allprojects { // This applies to healthcare-system root AND its subprojects
     group = "com.healthcare"
     version = "0.0.1-SNAPSHOT"
-    repositories {
-        mavenCentral()
-    }
+
+    // Apply the plugin here as well for all subprojects if needed,
+    // though applying in subprojects block below is usually sufficient
+    // apply(plugin = "io.spring.dependency-management")
+
+    // Repositories already defined in top-level build's allprojects
 }
 
+// Configurations applied ONLY to the modules within healthcare-system
 subprojects {
+    // Apply common plugins FIRST
     apply(plugin = "java")
-    apply(plugin = "org.springframework.boot")
+    apply(plugin = "org.springframework.boot") // Apply Boot by default
     apply(plugin = "io.spring.dependency-management")
-    // apply(plugin = "kotlin") // Uncomment if using Kotlin
-    // apply(plugin = "kotlin-spring") // Uncomment if using Kotlin
 
     java {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    // tasks.withType<KotlinCompile> { // If using Kotlin
-    //     kotlinOptions { jvmTarget = "17" }
-    // }
-
-    dependencyManagement {
+    configure<DependencyManagementExtension> {
         imports {
             mavenBom(SpringBootPlugin.BOM_COORDINATES)
             mavenBom("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
@@ -45,38 +46,20 @@ subprojects {
         }
     }
 
-    // Define truly universal dependencies here (Optional - often better in module build files)
     dependencies {
         compileOnly("org.projectlombok:lombok")
         annotationProcessor("org.projectlombok:lombok")
         testImplementation("org.springframework.boot:spring-boot-starter-test") {
             exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         }
+        // Maybe add actuator here if truly needed by *all* subprojects
+        // implementation("org.springframework.boot:spring-boot-starter-actuator")
     }
 
     tasks.withType<Test> {
         useJUnitPlatform()
     }
 
-    // --- Module Type Specific Configuration ---
-    // Apply java-library plugin and remove Spring Boot plugin from common-lib
-    if (project.name == "common-lib") {
-        apply(plugin = "java-library")
-        plugins.remove(plugins.findPlugin("org.springframework.boot"))
-    }
-    // Exclude standard web starter from API Gateway as it uses WebFlux
-    if (project.name == "api-gateway") {
-        configurations.implementation.get().exclude(group = "org.springframework.boot", module = "spring-boot-starter-web")
-    }
-    // Exclude dependencies not needed/conflicting in Eureka Server
-    if (project.name == "eureka-server") {
-        configurations.implementation.get().exclude(group = "org.springframework.boot", module = "spring-boot-starter-web")
-        configurations.implementation.get().exclude(group = "org.springframework.cloud", module = "spring-cloud-starter-config")
-        configurations.implementation.get().exclude(group = "org.springframework.cloud", module = "spring-cloud-starter-netflix-eureka-client")
-    }
-    // Exclude dependencies not needed/conflicting in Config Server
-    if (project.name == "config-server") {
-        configurations.implementation.get().exclude(group = "org.springframework.cloud", module = "spring-cloud-starter-config")
-        // Keep eureka-client if config-server should register itself
-    }
-}
+    // --- NO MORE conditional plugin application or configuration exclusions here ---
+
+} // End of subprojects block

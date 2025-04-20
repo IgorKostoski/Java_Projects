@@ -1,0 +1,12 @@
+# Minimal internal defaults for Eureka Server.
+# The main configuration (port, client settings) will come from config-repo/eureka-server.yml
+# via the Config Server defined in bootstrap.yml.
+spring:
+  application:
+    # Redundant with bootstrap.yml but good practice to have it here too.
+    name: eureka-server
+
+# You could put fallback Eureka config here if Config Server fails and fail-fast=false
+# server.port: 8761
+# eureka.client.register-with-eureka: false
+# ... etc

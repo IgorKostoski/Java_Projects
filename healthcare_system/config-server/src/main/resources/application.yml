@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: git
+  cloud:
+    config:
+      server:
+        git:
+          uri: file:///config-repo # Make sure path is exactly this
+server:
+  port: 8888

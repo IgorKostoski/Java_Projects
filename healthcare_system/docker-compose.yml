@@ -1,10 +1,40 @@
 version: '3.8'
 
 services:
+  config-server:
+    # image: ... # Using build context instead
+    container_name: config-server
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888" # Host port : Container port
+    volumes:
+      - ./config-repo:/config-repo # Host path : Container path
+    environment:
+      SPRING_PROFILES_ACTIVE: git # Can also set profile via environment
+    networks:
+      - healthcare-network
+
+  eureka-server:
+    image: healthcare/eureka-server:0.0.1-SNAPSHOT # Assumes image is built
+    container_name: eureka-server
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile # Need to create a Dockerfile for eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      # Pass Config Server location to bootstrap.yml inside the container
+      CONFIG_SERVER_HOST: config-server # Use the service name from docker-compose
+    networks:
+      - healthcare-network
+    depends_on: # Ensure config-server is started first
+      - config-server
   # --- Database ---
   postgres-db:
     image: postgres:15 # Use a specific recent version
-    container_name: postgres-db
+    container_name: healthcare_postgres_instance
     environment:
       POSTGRES_DB: servicedb_default # A default DB, services will use specific ones
       POSTGRES_USER: user
@@ -67,3 +97,6 @@ volumes:
 networks:
   healthcare-network:
     driver: bridge # Default Docker network driver
+
+
+
