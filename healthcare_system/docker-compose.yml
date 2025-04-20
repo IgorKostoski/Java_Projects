@@ -17,20 +17,19 @@ services:
       - healthcare-network
 
   eureka-server:
-    image: healthcare/eureka-server:0.0.1-SNAPSHOT # Assumes image is built
     container_name: eureka-server
     build:
-      context: ./eureka-server
-      dockerfile: Dockerfile # Need to create a Dockerfile for eureka-server
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8761:8761"
     environment:
-      # Pass Config Server location to bootstrap.yml inside the container
-      CONFIG_SERVER_HOST: config-server # Use the service name from docker-compose
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - CONFIG_SERVER_HOST=config-server
+    depends_on:
+      - config-server
     networks:
       - healthcare-network
-    depends_on: # Ensure config-server is started first
-      - config-server
   # --- Database ---
   postgres-db:
     image: postgres:15 # Use a specific recent version

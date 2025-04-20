@@ -1,0 +1,16 @@
+# healthcare-system/config-repo/eureka-server.yml
+server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: eureka-server # <-- Set this EXPLICITLY to the service name
+    prefer-ip-address: true # Can keep or remove, hostname might be more important now
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      # This should ideally resolve correctly using the hostname now for clients
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+  server:
+    wait-time-in-ms-when-sync-empty: 5
