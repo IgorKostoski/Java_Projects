@@ -18,6 +18,6 @@ include(
 //    "auth-service",
 //    "notification-service",
 //    "common-lib",
-//    "patient-service",
+    "patient-service",
 
 )
