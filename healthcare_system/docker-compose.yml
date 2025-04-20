@@ -19,17 +19,22 @@ services:
   eureka-server:
     container_name: eureka-server
     build:
-      context: .
+      context: ./eureka-server
       dockerfile: Dockerfile
     ports:
       - "8761:8761"
     environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-      - CONFIG_SERVER_HOST=config-server
-    depends_on:
-      - config-server
+      CONFIG_SERVER_HOST: config-server
+      # Keep these overrides
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
+      EUREKA_CLIENT_FETCH_REGISTRY: "false"
+      # --- Force the service URL for the internal client ---
+      # Use the correct internal hostname resolvable via Docker Compose DNS
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka-server:8761/eureka/
     networks:
       - healthcare-network
+    depends_on:
+      - config-server
   # --- Database ---
   postgres-db:
     image: postgres:15 # Use a specific recent version
