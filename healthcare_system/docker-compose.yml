@@ -1,20 +1,56 @@
 version: '3.8'
 
 services:
+
+  patient-service:
+    container_name: patient-service
+    build:
+      context: ./patient-service # Context relative to docker-compose.yml
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081" # Map host 8081 to container 8081 (defined in patient-service.yml)
+    environment:
+      # Database connection details (read by patient-service.yml)
+      DB_HOST: postgres-db # Use the container name of the DB service
+      DB_PORT: 5432 # Default postgres port
+      DB_NAME: patientdb # Specific database for this service
+      DB_USER: user
+      DB_PASSWORD: password
+      # Config Server URI (read by bootstrap.yml) - Use service name
+      CONFIG_SERVER_URI: http://config-server:8888
+      # Eureka URI (read by application.yml/patient-service.yml) - Use service name
+      EUREKA_URI: http://eureka-server:8761/eureka/
+      # Zipkin URI (read by application.yml) - Use service name
+      ZIPKIN_URI: http://zipkin:9411/
+    depends_on: # Ensure dependencies are started (basic check, not full readiness)
+      - postgres-db
+      - config-server
+      - eureka-server
+    networks:
+      - healthcare-network
+
+
   config-server:
-    # image: ... # Using build context instead
     container_name: config-server
     build:
       context: ./config-server
       dockerfile: Dockerfile
     ports:
-      - "8888:8888" # Host port : Container port
+      - "8888:8888"
     volumes:
-      - ./config-repo:/config-repo # Host path : Container path
+      - ./config-repo:/config-repo
     environment:
-      SPRING_PROFILES_ACTIVE: git # Can also set profile via environment
+      SPRING_PROFILES_ACTIVE: git
     networks:
       - healthcare-network
+    # --- ADD HEALTHCHECK ---
+    healthcheck:
+      # Use curl (needs to be installed in the image if not present) to check the health actuator
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 15s       # Check health every 15 seconds
+      timeout: 5s        # Wait up to 5 seconds for a response
+      retries: 5         # Attempt check 5 times before marking as unhealthy
+      start_period: 20s  # Allow 20 seconds grace period for startup before first check
 
   eureka-server:
     container_name: eureka-server
@@ -101,6 +137,8 @@ volumes:
 networks:
   healthcare-network:
     driver: bridge # Default Docker network driver
+
+
 
 
 

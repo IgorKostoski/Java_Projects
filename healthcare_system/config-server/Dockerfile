@@ -1,6 +1,10 @@
-# Example for config-server/Dockerfile
 FROM eclipse-temurin:17-jdk-jammy
+
+# Install curl for healthcheck
+USER root
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-# Copy the built JAR (path is relative to build context)
 COPY build/libs/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 8888
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

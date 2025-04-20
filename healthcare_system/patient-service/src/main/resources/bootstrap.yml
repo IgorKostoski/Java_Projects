@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: patient-service
+
+  config:
+    import: "configserver:${CONFIG_SERVER_URI:http://config-server:8888}"  # ✅ MUST be here
+
+  cloud:
+    config:
+      enabled: true
+      import-check:
+        enabled: true

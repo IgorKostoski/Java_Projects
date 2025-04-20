@@ -29,6 +29,7 @@ subprojects {
 
     // --- Conditionally apply Spring Boot and related config ---
     if (project.name != "common-lib") {
+        println(">>> Applying Spring Boot plugin to: ${project.name}")
         apply(plugin = "org.springframework.boot")
         apply(plugin = "io.spring.dependency-management")
 
