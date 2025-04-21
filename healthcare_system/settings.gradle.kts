@@ -12,7 +12,7 @@ include(
     "config-server",
 //    "api-gateway",
     "doctor-service",
-//    "appointment-service",
+    "appointment-service",
 //    "medical-records-service",
 //    "billing-service",
 //    "auth-service",
