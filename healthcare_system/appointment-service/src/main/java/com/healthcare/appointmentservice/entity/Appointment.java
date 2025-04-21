@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,13 +18,13 @@ public class Appointment {
     private Long id;
 
     @Column(nullable = false)
-    private Long patientId;
+    private Long patientId; // Reference to Patient ID from Patient Service
 
     @Column(nullable = false)
-    private Long doctorId;
+    private Long doctorId;  // Reference to Doctor ID from Doctor Service
 
     @Column(nullable = false)
-    private LocalDateTime appointmentTime;
+    private LocalDateTime appointmentDateTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -34,6 +33,6 @@ public class Appointment {
     @Column(length = 255)
     private String reason;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT") // Allow longer notes
     private String notes;
 }

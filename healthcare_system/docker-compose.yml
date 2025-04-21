@@ -2,6 +2,39 @@ version: '3.8'
 
 services:
 
+  appointment-service:
+    container_name: appointment-service
+    build:
+      context: ./appointment-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8083" # Map host 8083 to container 8083
+    environment:
+      # Database connection
+      DB_HOST: postgres-db
+      DB_PORT: 5432
+      DB_NAME: appointmentdb # Use the specific DB name
+      DB_USER: user
+      DB_PASSWORD: password
+      # Infrastructure URIs
+      CONFIG_SERVER_URI: http://config-server:8888
+      EUREKA_URI: http://eureka-server:8761/eureka/
+      ZIPKIN_URI: http://zipkin:9411/
+      # RabbitMQ connection details
+      RABBITMQ_HOST: rabbitmq # Use service name
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+    depends_on:
+      - postgres-db
+      - config-server
+      - eureka-server
+      - rabbitmq # Add dependency on RabbitMQ
+      - patient-service # Depends on these logically, ensures startup order
+      - doctor-service
+    networks:
+      - healthcare-network
+
   doctor-service:
     container_name: doctor-service
     build:
