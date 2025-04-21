@@ -1,9 +1,7 @@
 package com.healthcare.appointmentservice.dto;
 
-
 import com.healthcare.appointmentservice.entity.AppointmentStatus;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 @Data
@@ -15,6 +13,7 @@ public class AppointmentDTO {
     private AppointmentStatus status;
     private String reason;
     private String notes;
-    private PatientDTO patientDetails;
-    private DoctorDTO doctorDetails;
+    // Optional: We could add PatientDTO/DoctorDTO fields here
+    // private PatientDTO patientDetails;
+    // private DoctorDTO doctorDetails;
 }

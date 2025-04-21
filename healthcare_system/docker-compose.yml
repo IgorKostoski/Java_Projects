@@ -2,6 +2,10 @@ version: '3.8'
 
 services:
 
+  # healthcare-system/docker-compose.yml
+  # ... (version, services: postgres-db, rabbitmq, zipkin, config-server, eureka-server, patient-service, doctor-service) ...
+
+  # --- Appointment Service ---
   appointment-service:
     container_name: appointment-service
     build:
@@ -35,6 +39,7 @@ services:
     networks:
       - healthcare-network
 
+  # ... (volumes, networks definitions) ...
   doctor-service:
     container_name: doctor-service
     build:
