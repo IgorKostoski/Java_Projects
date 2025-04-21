@@ -1,0 +1,38 @@
+# healthcare-system/config-repo/notification-service.yml
+server:
+  port: 8084 # Different port
+
+# RabbitMQ Connection Info (Can also inherit from application.yml if defined there)
+spring:
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASS:guest}
+  # Optional Mail Sender Config (if sending emails)
+  # mail:
+  #   host: smtp.example.com
+  #   port: 587
+  #   username: your-email@example.com
+  #   password: your-password
+  #   properties:
+  #     mail.smtp.auth: true
+  #     mail.smtp.starttls.enable: true
+
+# Eureka client config inherited from application.yml
+
+# Custom properties used by RabbitMQConfig.java
+healthcare:
+  amqp:
+    exchange:
+      appointments: healthcare.appointments.exchange # Ensure this matches AppointmentService config
+    queue:
+      notifications: appointment-notifications-queue # Queue name listener will use
+    routingkey:
+      created: appointment.created # Routing key for created events
+      cancelled: appointment.cancelled # Routing key for cancelled events
+
+logging:
+  level:
+    com.healthcare.notificationservice: DEBUG # Enable DEBUG for this service
+    org.springframework.amqp: INFO # Log AMQP interactions (DEBUG is very verbose)

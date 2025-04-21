@@ -3,6 +3,36 @@ version: '3.8'
 services:
 
   # healthcare-system/docker-compose.yml
+  # ... (version, services: postgres-db, rabbitmq, zipkin, config-server, eureka-server, patient-service, doctor-service, appointment-service) ...
+
+  # --- Notification Service ---
+  notification-service:
+    container_name: notification-service
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    # ports: # No port mapping needed if no web server running
+    environment:
+      # Infrastructure URIs
+      CONFIG_SERVER_URI: http://config-server:8888
+      EUREKA_URI: http://eureka-server:8761/eureka/
+      ZIPKIN_URI: http://zipkin:9411/
+      # RabbitMQ connection details
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: guest
+      RABBITMQ_PASS: guest
+      # Any Email/SMS creds would go here (use secrets management in prod!)
+    depends_on:
+      - config-server
+      - eureka-server # Depends if registering
+      - rabbitmq      # MUST depend on RabbitMQ
+    networks:
+      - healthcare-network
+
+  # ... (volumes, networks definitions) ...
+
+  # healthcare-system/docker-compose.yml
   # ... (version, services: postgres-db, rabbitmq, zipkin, config-server, eureka-server, patient-service, doctor-service) ...
 
   # --- Appointment Service ---

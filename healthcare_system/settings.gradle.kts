@@ -16,7 +16,7 @@ include(
 //    "medical-records-service",
 //    "billing-service",
 //    "auth-service",
-//    "notification-service",
+    "notification-service",
 //    "common-lib",
     "patient-service",
 
