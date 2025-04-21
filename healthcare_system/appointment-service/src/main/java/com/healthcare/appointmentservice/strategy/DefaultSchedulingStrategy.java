@@ -28,7 +28,7 @@ public class DefaultSchedulingStrategy implements SchedulingStrategy {
         LocalDateTime windowStart = requestedTime.minusMinutes(29);
         LocalDateTime windowEnd = requestedTime.plusMinutes(29);
 
-        long conflictingCount = appointmentRepository.findByDoctorIdAndAppointmentDateTimeBetween(
+        long conflictingCount = appointmentRepository.findByDoctorIdAndAppointmentDateTimeBetween( // <-- Use CORRECTED name here
                         request.getDoctorId(), windowStart, windowEnd)
                 .stream()
                 .filter(a -> a.getStatus() != AppointmentStatus.CANCELLED_BY_DOCTOR &&
