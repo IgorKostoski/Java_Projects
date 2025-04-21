@@ -1,0 +1,25 @@
+# healthcare-system/config-repo/doctor-service.yml
+server:
+  port: 8082 # Use a different port than patient-service
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:doctordb} # Use a different DB name
+    username: ${DB_USER:user}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update # Or validate/none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# Eureka client config inherited from application.yml
+
+logging:
+  level:
+    com.healthcare.doctorservice: DEBUG
+    org.hibernate.SQL: DEBUG

@@ -11,7 +11,7 @@ include(
     "eureka-server",
     "config-server",
 //    "api-gateway",
-//    "doctor-service",
+    "doctor-service",
 //    "appointment-service",
 //    "medical-records-service",
 //    "billing-service",

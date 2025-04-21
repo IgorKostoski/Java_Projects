@@ -2,6 +2,30 @@ version: '3.8'
 
 services:
 
+  doctor-service:
+    container_name: doctor-service
+    build:
+      context: ./doctor-service # Context relative to docker-compose.yml
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082" # Map host 8082 to container 8082
+    environment:
+      # Use the SAME database instance, but a DIFFERENT database name
+      DB_HOST: postgres-db # Service name of the DB container
+      DB_PORT: 5432
+      DB_NAME: doctordb # Use the specific DB name for doctors
+      DB_USER: user
+      DB_PASSWORD: password
+      CONFIG_SERVER_URI: http://config-server:8888
+      EUREKA_URI: http://eureka-server:8761/eureka/
+      ZIPKIN_URI: http://zipkin:9411/
+    depends_on:
+      - postgres-db # Corrected service name
+      - config-server
+      - eureka-server
+    networks:
+      - healthcare-network
+
   patient-service:
     container_name: patient-service
     build:
