@@ -13,7 +13,7 @@ include(
 //    "api-gateway",
     "doctor-service",
     "appointment-service",
-//    "medical-records-service",
+    "medical-records-service",
 //    "billing-service",
 //    "auth-service",
     "notification-service",

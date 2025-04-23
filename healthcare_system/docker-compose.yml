@@ -1,6 +1,32 @@
 version: '3.8'
 
 services:
+  medical-records-service:
+    container_name: medical-records-service
+    build:
+      context: ./medical-records-service
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      # MongoDB connection details (read by medical-records-service.yml)
+      MONGO_HOST: mongodb # Use service name
+      MONGO_PORT: 27017
+      MONGO_DB: medicalrecordsdb # Database name
+      MONGO_USER: root # Use root user created above (or dedicated user)
+      MONGO_PASSWORD: rootpassword # Use password set above
+      # Infrastructure URIs
+      CONFIG_SERVER_URI: http://config-server:8888
+      EUREKA_URI: http://eureka-server:8761/eureka/
+      ZIPKIN_URI: http://zipkin:9411/
+    depends_on:
+      - mongodb # Add dependency
+      - config-server
+      - eureka-server
+    networks:
+      - healthcare-network
+
+
 
   # healthcare-system/docker-compose.yml
   # ... (version, services: postgres-db, rabbitmq, zipkin, config-server, eureka-server, patient-service, doctor-service, appointment-service) ...
@@ -218,11 +244,27 @@ services:
   #   ...
   # grafana:
   #   ...
+  mongodb:
+    image: mongo:6 # Use specific version
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root # For initial setup/auth
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword # CHANGE THIS!
+      # Optional: Create a specific user/db on init - more complex setup needed
+      # MONGO_INITDB_DATABASE: admin # Auth usually happens against admin db
+    volumes:
+      - mongo_data:/data/db # Persist data
+      # Optional: Mount init scripts if needed: - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - healthcare-network
 
 # --- Volumes Definition ---
 volumes:
   postgres_data:
   rabbitmq_data:
+  mongo_data:
   # mongo_data:
 
 # --- Network Definition ---
