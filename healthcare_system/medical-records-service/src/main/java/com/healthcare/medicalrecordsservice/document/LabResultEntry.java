@@ -13,6 +13,5 @@ public class LabResultEntry extends RecordEntry{
     private Map<String, String> results;
     private String labNotes;
 
-    // Constructor called by subclasses or framework if needed
-    // Parameterized constructor removed to allow easy instantiation + BeanUtils
+
 }

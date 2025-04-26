@@ -7,11 +7,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true) // Important for Lombok inheritance
+@EqualsAndHashCode(callSuper = true)
 public class VisitEntry extends RecordEntry {
     private String reason;
     private String diagnosis;
-    @Field("doctor_notes") // Example of custom field name in MongoDB
+    @Field("doctor_notes")
     private String notes;
 
     public VisitEntry(Long recordedByDoctorId, String reason, String diagnosis, String notes) {

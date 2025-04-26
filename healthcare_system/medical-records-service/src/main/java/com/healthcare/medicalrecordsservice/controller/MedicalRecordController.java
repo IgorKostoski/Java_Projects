@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/records") // Base path for medical records
+@RequestMapping("/api/records")
 @RequiredArgsConstructor
 public class MedicalRecordController {
 
