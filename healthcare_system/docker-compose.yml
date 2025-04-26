@@ -1,6 +1,34 @@
 version: '3.8'
 
 services:
+
+  billing-service:
+    container_name: billing-service
+    build:
+      context: ./billing-service
+      dockerfile: Dockerfile
+    ports:
+      - "8086:8086"
+    environment:
+      # Database connection
+      DB_HOST: postgres-db # Use SERVICE name
+      DB_PORT: 5432
+      DB_NAME: billingdb # Use the specific DB name
+      DB_USER: user
+      DB_PASSWORD: password
+      # Infrastructure URIs
+      CONFIG_SERVER_URI: http://config-server:8888
+      EUREKA_URI: http://eureka-server:8761/eureka/
+      ZIPKIN_URI: http://zipkin:9411/
+    depends_on:
+      - postgres-db
+      - config-server
+      - eureka-server
+      # Optional: depends_on appointment-service if triggered directly
+    networks:
+      - healthcare-network
+
+
   medical-records-service:
     container_name: medical-records-service
     build:
