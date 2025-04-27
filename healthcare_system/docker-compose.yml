@@ -2,6 +2,35 @@ version: '3.8'
 
 services:
 
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      # This is the main external entry point for clients
+      - "8080:8080"
+    environment:
+      # Infrastructure URIs
+      CONFIG_SERVER_URI: http://config-server:8888
+      EUREKA_URI: http://eureka-server:8761/eureka/
+      ZIPKIN_URI: http://zipkin:9411/
+      # Optional: Define Auth Server location if needed directly by gateway filters later
+      # AUTH_SERVER_ISSUER_URI: http://auth-service:9000
+    depends_on:
+      - config-server
+      - eureka-server
+      # Add depends_on for backend services IF you want to ensure they
+      # are *started* before the gateway. Doesn't guarantee readiness.
+      # - patient-service
+      # - doctor-service
+      # - appointment-service
+      # - medical-records-service
+      # - billing-service
+      # - auth-service
+    networks:
+      - healthcare-network
+
   # healthcare-system/docker-compose.yml
   # ... (services: postgres-db, ..., medical-records-service) ...
 

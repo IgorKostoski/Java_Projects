@@ -37,7 +37,7 @@ eureka:
 # Default Zipkin settings
 spring:
   zipkin:
-    base-url: ${ZIPKIN_URI:http://zipkin:9411/} # Use 'zipkin' hostname in Docker Compose network
+    ZIPKIN_URI: http://zipkin:9411/ # Use 'zipkin' hostname in Docker Compose network
     # Optional: Configure sender type if needed (default is web)
     # sender:
     #   type: web # or rabbit, kafka

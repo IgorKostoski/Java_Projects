@@ -1,0 +1,79 @@
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,gateway
+  endpoint:
+    gateway:
+      enabled: true
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name:api-gateway}
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+          lower-case-service-id: true
+      routes:
+        - id: patient_service_route
+          uri: lb://patient-service
+          predicates:
+            - Path=/api/patients/**
+
+        - id: doctor_service_route
+          uri: lb://doctor-service
+          predicates:
+            - Path=/api/doctors/**
+
+        - id: appointment_service_route
+          uri: lb://appointment-service
+          predicates:
+            - Path=/api/appointments/**
+
+        - id: medical_records_service_route
+          uri: lb://medical-records-service
+          predicates:
+            - Path=/api/records/**
+
+        - id: billing_service_route
+          uri: lb://billing-service
+          predicates:
+            - Path=/api/billing/**
+
+        - id: auth_service_oauth_route
+          uri: lb://auth-service
+          predicates:
+            - Path=/oauth2/**, /.well-known/openid-configuration, /oauth2/jwks
+
+        - id: auth_service_login_route
+          uri: lb://auth-service
+          predicates:
+             - Path=/login
+
+logging:
+  level:
+    com.healthcare.apigateway: INFO
+    org.springframework.cloud.gateway: INFO
+    reactor.netty.http.client: INFO
+
+# Optional Resilience4j config would go here, uncommented if needed
+# resilience4j.circuitbreaker:
+#   configs:
+#     default:
+#       slidingWindowType: COUNT_BASED
+#       slidingWindowSize: 20
+#       failureRateThreshold: 50
+#       waitDurationInOpenState: 10000
+#   instances:
+#     patientServiceBreaker:
+#       baseConfig: default
+#     doctorServiceBreaker:
+#       baseConfig: default
