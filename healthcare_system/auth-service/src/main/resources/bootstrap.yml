@@ -1,0 +1,11 @@
+# healthcare-system/auth-service/src/main/resources/bootstrap.yml
+spring:
+  application:
+    name: auth-service # Service name
+  config:
+    import: "configserver:${CONFIG_SERVER_URI:http://config-server:8888}"
+  cloud:
+    config:
+      enabled: true
+      import-check:
+        enabled: true

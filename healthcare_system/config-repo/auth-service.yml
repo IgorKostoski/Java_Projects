@@ -1,0 +1,36 @@
+# healthcare-system/config-repo/auth-service.yml
+server:
+  port: 9000 # Common port for auth servers
+
+spring:
+  # Separate Database for Auth Service
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:authdb}
+    username: ${DB_USER:user}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update # Creates user_accounts table
+    show-sql: false # Less verbose SQL for auth service usually
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# Default issuer URI for tokens (can be overridden in AuthorizationServerSettings bean if needed)
+# Often set to the public URL of the auth service or API gateway
+# Example - this might need adjustment based on your deployment/gateway setup
+# spring:
+#   security:
+#     oauth2:
+#       authorizationserver:
+#         issuer: http://localhost:${server.port} # Default if not set
+
+logging:
+  level:
+    com.healthcare.authservice: INFO
+    org.springframework.security: INFO # Set to DEBUG for intense security logging
+    org.springframework.security.oauth2: INFO
+
+# Eureka client config inherited
