@@ -24,6 +24,17 @@ spring:
 #   instance:
 #     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Point to the Auth Service JWK Set endpoint using internal Docker service name
+          jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
+          # Optional: Specify required issuer if needed (must match 'iss' claim in JWT)
+          # issuer-uri: ${AUTH_SERVER_ISSUER_URI:http://auth-service:9000}
+          # Optional: Specify required audience if needed (must match 'aud' claim in JWT)
+          # audiences: patient-service-api # Example audience
+
 # Logging level specific to this service
 logging:
   level:
