@@ -64,6 +64,14 @@ logging:
     org.springframework.cloud.gateway: INFO
     reactor.netty.http.client: INFO
 
+
+security:
+  oauth2:
+    resourceserver:
+      jwt:
+        jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
+
+
 # Optional Resilience4j config would go here, uncommented if needed
 # resilience4j.circuitbreaker:
 #   configs:
