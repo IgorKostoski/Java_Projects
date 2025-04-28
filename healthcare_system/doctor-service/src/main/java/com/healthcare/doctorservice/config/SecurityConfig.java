@@ -1,5 +1,4 @@
-package com.healthcare.doctorservice.config;
-
+package com.healthcare.doctorservice.config; // Change package name
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,8 +19,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
-
-                        .requestMatchers("/api/doctors/**").authenticated()
+                        // Require authentication for all Doctor API endpoints
+                        .requestMatchers("/api/doctors/**").authenticated() // <-- Change path
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -30,7 +29,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .csrf(Customizer.withDefaults());
+                .csrf(csrf -> csrf.disable());
+
         return http.build();
     }
 }

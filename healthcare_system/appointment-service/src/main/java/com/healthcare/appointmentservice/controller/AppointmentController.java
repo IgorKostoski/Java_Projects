@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -23,6 +24,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasAnyAuthority('SCOPE_patient:write', 'SCOPE_doctor:write')")
     public ResponseEntity<AppointmentDTO> createAppointment(@Valid @RequestBody CreateAppointmentRequest request) {
         log.info("Received request to create appointment for patientId: {}, doctorId: {}", request.getPatientId(), request.getDoctorId());
         AppointmentDTO createdAppointment = appointmentService.createAppointment(request);
@@ -36,6 +38,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER') or hasAnyAuthority('SCOPE_doctor:read', 'SCOPE_patient:read')")
     public ResponseEntity<AppointmentDTO> getAppointmentById(@PathVariable Long id) {
         log.info("Received request to get appointment ID: {}", id);
         AppointmentDTO appointment = appointmentService.getAppointmentById(id);
@@ -43,6 +46,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient/{patientId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER') or hasAnyAuthority('SCOPE_doctor:read', 'SCOPE_patient:read')")
     public ResponseEntity<List<AppointmentDTO>> getAppointmentsByPatient(@PathVariable Long patientId) {
         log.info("Received request to get appointments for patient ID: {}", patientId);
         List<AppointmentDTO> appointments = appointmentService.getAppointmentsByPatientId(patientId);
@@ -50,6 +54,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/doctor/{doctorId}")
+    @PreAuthorize("hasRole('ADMIN') or hasAuthority('SCOPE_doctor:write')")
     public ResponseEntity<List<AppointmentDTO>> getAppointmentsByDoctor(@PathVariable Long doctorId) {
         log.info("Received request to get appointments for doctor ID: {}", doctorId);
         List<AppointmentDTO> appointments = appointmentService.getAppointmentsByDoctorId(doctorId);
@@ -57,6 +62,7 @@ public class AppointmentController {
     }
 
     @PutMapping("/{id}/cancel") // Or use PATCH
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<AppointmentDTO> cancelAppointment(
             @PathVariable Long id,
             @RequestParam(defaultValue = "SYSTEM") String cancelledBy) {

@@ -14,5 +14,6 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          # Define JWK Set URI here so it's available during bootstrap
+          # Point to the Auth Service JWK Set endpoint
           jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
+          # Optional: issuer-uri, audiences

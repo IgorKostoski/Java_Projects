@@ -122,8 +122,15 @@ public class SecurityConfig {
                 // Scopes this client is allowed to request
                 .scope(OidcScopes.OPENID) // Request basic OIDC scopes
                 .scope(OidcScopes.PROFILE) // Request profile information
-                .scope("read")
-                .scope("write")
+                .scope("patient:read")
+                .scope("patient:write")
+                .scope("doctor:read")
+                .scope("appointment:read")
+                .scope("appointment:schedule")
+                .scope("record:read")
+                .scope("record:write")
+                .scope("billing:read")
+//
                 // Client settings (e.g., require proof key for code exchange - PKCE)
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
@@ -134,8 +141,10 @@ public class SecurityConfig {
                 .clientSecret(passwordEncoder.encode("service-secret"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .scope("internal_read")
-                .scope("internal_write")
+                .scope("patient:read")
+                .scope("docotor:read")
+                .scope("iinternal.communication")
+
                 .build();
 
 
