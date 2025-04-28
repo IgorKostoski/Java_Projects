@@ -4,6 +4,7 @@ server:
 
 spring:
   # MongoDB Configuration
+
   data:
     mongodb:
       # Use environment variables or default to localhost for local runs

@@ -1,12 +1,18 @@
+# healthcare-system/doctor-service/src/main/resources/bootstrap.yml
 spring:
   application:
     name: doctor-service
-
   config:
-    import: "configserver:${CONFIG_SERVER_URI:http://config-server:8888}"  # ✅ MUST be here
-
+    import: "configserver:${CONFIG_SERVER_URI:http://config-server:8888}"
   cloud:
     config:
       enabled: true
       import-check:
         enabled: true
+  # --- Add Security Properties Needed Early ---
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Define JWK Set URI here so it's available during bootstrap
+          jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}

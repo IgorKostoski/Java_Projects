@@ -9,6 +9,14 @@ spring:
     username: ${DB_USER:user}
     password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
+    security:
+      oauth2:
+        resourceserver:
+          jwt:
+            # Point to the Auth Service JWK Set endpoint
+            jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
+            # Optional: issuer-uri, audiences
+
   jpa:
     hibernate:
       ddl-auto: update

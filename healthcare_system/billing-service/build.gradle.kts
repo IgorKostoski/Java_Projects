@@ -16,6 +16,8 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     // implementation("org.springframework.cloud:spring-cloud-starter-openfeign") // Add if needed later
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
     // Database Driver
     runtimeOnly("org.postgresql:postgresql")
