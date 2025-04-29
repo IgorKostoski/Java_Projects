@@ -1,0 +1,7 @@
+# healthcare-system/api-gateway/src/main/resources/application.yml
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://auth-service:9000/oauth2/jwks

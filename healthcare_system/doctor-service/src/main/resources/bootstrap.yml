@@ -17,3 +17,8 @@ spring:
           # Point to the Auth Service JWK Set endpoint
           jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
           # Optional: issuer-uri, audiences
+
+  eureka:
+    client:
+      registry-fetch-interval-seconds: 5
+      initial-instance-info-replication-interval-seconds: 5

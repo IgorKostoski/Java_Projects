@@ -1,11 +1,10 @@
 # healthcare-system/api-gateway/src/main/resources/bootstrap.yml
 spring:
   application:
-    name: api-gateway # Service name
+    name: api-gateway
   config:
+    # Keep the import for Config Server config
     import: "configserver:${CONFIG_SERVER_URI:http://config-server:8888}"
-  cloud:
-    config:
-      enabled: true
-      import-check:
-        enabled: true
+    # Explicitly define config names and locations to search
+    name: application,bootstrap # Look for application.yml and bootstrap.yml
+    location: classpath:/,optional:classpath:/config/ # Search classpath root and optional /config subdir

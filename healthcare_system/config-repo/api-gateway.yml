@@ -1,3 +1,4 @@
+# healthcare-system/config-repo/api-gateway.yml
 server:
   port: 8080
 
@@ -15,38 +16,31 @@ management:
     tags:
       application: ${spring.application.name:api-gateway}
 
-spring:
-  cloud:
+spring: # <-- Top-level spring key
+  cloud: # <-- Sibling cloud key
     gateway:
       discovery:
         locator:
           enabled: false
-          lower-case-service-id: true
+        default-filters:
+          - TokenRelay
       routes:
         - id: patient_service_route
           uri: lb://patient-service
           predicates:
             - Path=/api/patients/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: patientServiceCircuitBreaker
+                # fallbackUri: forward:/fallback/patientServiceFallback
 
         - id: doctor_service_route
           uri: lb://doctor-service
           predicates:
             - Path=/api/doctors/**
 
-        - id: appointment_service_route
-          uri: lb://appointment-service
-          predicates:
-            - Path=/api/appointments/**
-
-        - id: medical_records_service_route
-          uri: lb://medical-records-service
-          predicates:
-            - Path=/api/records/**
-
-        - id: billing_service_route
-          uri: lb://billing-service
-          predicates:
-            - Path=/api/billing/**
+        # ... other service routes ...
 
         - id: auth_service_oauth_route
           uri: lb://auth-service
@@ -56,32 +50,61 @@ spring:
         - id: auth_service_login_route
           uri: lb://auth-service
           predicates:
-             - Path=/login
+            - Path=/login
+#    security:
+#      oauth2:
+#        client:
+#          # This registration might not be strictly necessary if only validating tokens,
+#          # but TokenRelay sometimes expects it. The values here don't necessarily
+#          # need to match a specific client if just validating incoming tokens.
+#          registration:
+#            gateway-client: # Just an arbitrary registration name
+#              provider: spring # Reference the provider below
+#              client-id: api-gateway # Can be anything if not performing flows
+#              client-secret: secret # Can be anything if not performing flows
+#              authorization-grant-type: authorization_code # Placeholder
+#              redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}" # Placeholder
+#              scope: openid # Placeholder
+#          provider:
+#            # Provider details point to our Auth Server for discovery/jwks
+#            spring: # Name matching registration above
+#              issuer-uri: ${AUTH_SERVER_ISSUER_URI:http://auth-service:9000} # Use Issuer URI here
+#    resourceserver:
+#      jwt:
+#        # Keep the direct value here as a potential backup if TokenRelay doesn't fully configure it
+#        jwk-set-uri: http://auth-service:9000/oauth2/jwks
+##  # --- CORRECT Placement for Security Block ---
+#security: # <-- Sibling security key, under spring:
+#   oauth2:
+#   resourceserver:
+#       jwt:
+#          jwk-set-uri: http://auth-service:9000/oauth2/jwks
+#          # Optional: issuer-uri, audiences
 
+## --- Corrected Resilience4j Block Indentation ---
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowType: COUNT_BASED
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+  instances:
+    patientServiceCircuitBreaker:
+      baseConfig: default
+    doctorServiceCircuitBreaker:
+      baseConfig: default
+
+# --- Logging Block ---
 logging:
   level:
-    com.healthcare.apigateway: INFO
-    org.springframework.cloud.gateway: INFO
+    com.healthcare.apigateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG # See gateway processing
     reactor.netty.http.client: INFO
-
-
-security:
-  oauth2:
-    resourceserver:
-      jwt:
-        jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
-
-
-# Optional Resilience4j config would go here, uncommented if needed
-# resilience4j.circuitbreaker:
-#   configs:
-#     default:
-#       slidingWindowType: COUNT_BASED
-#       slidingWindowSize: 20
-#       failureRateThreshold: 50
-#       waitDurationInOpenState: 10000
-#   instances:
-#     patientServiceBreaker:
-#       baseConfig: default
-#     doctorServiceBreaker:
-#       baseConfig: default
+    org.springframework.security: DEBUG # Detailed security logs
+    org.springframework.beans.factory: DEBUG # See bean creation details
+    org.springframework.core.env: DEBUG # See property source loading/resolution
+    org.springframework.boot.context.config: DEBUG # Config data loading
+    org.springframework.cloud.config.client: DEBUG # Config client details
