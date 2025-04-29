@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.stream.Collectors;
+
 // --- End imports ---
 
 @Service
@@ -30,6 +31,8 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
     private static final Logger log = LoggerFactory.getLogger(MedicalRecordServiceImpl.class);
     private final MedicalRecordRepository medicalRecordRepository;
+
+
 
     @Override
     public MedicalRecordDTO getRecordByPatientId(Long patientId) {
@@ -72,6 +75,27 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     }
 
     @Override
+    @Transactional
+    public MedicalRecordDTO updateVisitDiagnosis(Long patientId, String newDiagnosis, Long actingDoctorId) {
+        log.info("Updating medical record for patient ID: {} by doctorr ID: {}", patientId, actingDoctorId);
+        MedicalRecord record = findRecordByPatientIdOrThrow(patientId);
+
+        VisitEntry latestVisit = record.getEntries().stream()
+                .filter(e -> e instanceof VisitEntry)
+                .map(e -> (VisitEntry) e)
+                .max((v1, v2) -> v1.getEntryTimestamp().compareTo(v2.getEntryTimestamp()))
+                .orElseThrow(() -> new ResourceNotFoundException("Could not find latest visit entry for patient ID: " + patientId));
+
+       latestVisit.updateDiagnosisHistory(newDiagnosis, actingDoctorId);
+
+        MedicalRecord updatedRecord = medicalRecordRepository.save(record);
+        log.info("Updated diagnosis for patient ID: {}", patientId);
+        return convertToDTO(updatedRecord);
+    }
+
+
+
+    @Override
     public void createMedicalRecordShell(Long patientId, String firstName, String lastName) {
         log.info("Creating medical record shell for patient ID: {} ({})", patientId, lastName);
         if (medicalRecordRepository.findByPatientId(patientId).isEmpty()) {
@@ -95,16 +119,17 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
     private MedicalRecordDTO convertToDTO(MedicalRecord record) {
         MedicalRecordDTO dto = new MedicalRecordDTO();
-        // Use the field directly or the getter from Lombok @Data
+
         BeanUtils.copyProperties(record, dto, "entries");
 
-        // Use getter for entries list
+
         if (record.getEntries() != null) {
             dto.setEntries(record.getEntries().stream()
                     .map(this::convertToEntryDTO)
+                            .filter(java.util.Objects::nonNull)
                     .collect(Collectors.toList()));
         } else {
-            // setEntries should exist via Lombok @Data on MedicalRecordDTO
+
             dto.setEntries(Collections.emptyList());
         }
         return dto;
@@ -114,19 +139,18 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         // Use the correct top-level class names
         if (entry instanceof VisitEntry visitEntry) {
             VisitEntryDTO dto = new VisitEntryDTO();
-            BeanUtils.copyProperties(visitEntry, dto);
+            BeanUtils.copyProperties(entry, dto, "diagnosisHistory");
             // Ensure common fields are copied if not handled by BeanUtils correctly across hierarchy
-            dto.setEntryTimestamp(visitEntry.getEntryTimestamp());
-            dto.setRecordedByDoctorId(visitEntry.getRecordedByDoctorId());
-            dto.setEntryType(visitEntry.getEntryType());
+            dto.setReason(visitEntry.getReason());
+            dto.setNotes(visitEntry.getNotes());
+            dto.setDiagnosis(visitEntry.getCurrentDiagnosis());
+
             return dto;
         } else if (entry instanceof LabResultEntry labEntry) {
             LabResultEntryDTO dto = new LabResultEntryDTO();
             BeanUtils.copyProperties(labEntry, dto);
             // Ensure common fields are copied
-            dto.setEntryTimestamp(labEntry.getEntryTimestamp());
-            dto.setRecordedByDoctorId(labEntry.getRecordedByDoctorId());
-            dto.setEntryType(labEntry.getEntryType());
+
             return dto;
         }
         log.warn("Cannot convert unknown RecordEntry type: {}", entry.getClass().getName());
@@ -135,23 +159,24 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
     private RecordEntry convertToEntryDocument(RecordEntryDTO dto) {
         // Assuming RecordEntryDTO has getEntryType(), getRecordedByDoctorId(), getEntryTimestamp() via Lombok @Data
+        Long doctorId = dto.getRecordedByDoctorId();
+
         if ("VISIT".equals(dto.getEntryType()) && dto instanceof VisitEntryDTO visitDTO) {
-            // Use top-level class
-            VisitEntry entry = new VisitEntry();
-            BeanUtils.copyProperties(visitDTO, entry);
-            // Ensure common fields from abstract DTO are copied if needed
-            entry.setRecordedByDoctorId(dto.getRecordedByDoctorId());
-            entry.setEntryTimestamp(dto.getEntryTimestamp() != null ? dto.getEntryTimestamp() : LocalDateTime.now());
-            entry.setEntryType("VISIT"); // Explicitly set type
-            return entry;
+          return new VisitEntry(
+                  doctorId,
+                  visitDTO.getReason(),
+                  visitDTO.getDiagnosis(),
+                  visitDTO.getNotes()
+          );
         } else if ("LAB_RESULT".equals(dto.getEntryType()) && dto instanceof LabResultEntryDTO labDTO) {
             // Use top-level class and no-args constructor
             LabResultEntry entry = new LabResultEntry();
             BeanUtils.copyProperties(labDTO, entry);
             // Ensure common fields from abstract DTO are copied
-            entry.setRecordedByDoctorId(dto.getRecordedByDoctorId());
-            entry.setEntryTimestamp(dto.getEntryTimestamp() != null ? dto.getEntryTimestamp() : LocalDateTime.now());
-            entry.setEntryType("LAB_RESULT"); // Explicitly set type
+          entry.setRecordedByDoctorId(doctorId);
+          entry.setEntryType("LAB_RESULT");
+          entry.setEntryTimestamp(LocalDateTime.now());
+
             return entry;
         }
         log.warn("Cannot convert DTO of type {} to a known RecordEntry document", dto.getEntryType());

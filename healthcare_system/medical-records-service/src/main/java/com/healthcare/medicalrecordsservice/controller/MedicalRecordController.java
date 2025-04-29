@@ -36,6 +36,18 @@ public class MedicalRecordController {
         return ResponseEntity.status(HttpStatus.CREATED).body(updatedRecord);
     }
 
+    @PutMapping("/patient/{patientId}/entries/visit/diagnosis")
+    public ResponseEntity<MedicalRecordDTO> updateLatestVisitDiagnosis(
+            @PathVariable Long patientId,
+            @RequestParam String newDiagnosis, // Get new diagnosis from query param
+            @RequestParam Long actingDoctorId // Need to know who is making the change
+            // In real app, actingDoctorId would come from security context (authenticated principal)
+    ) {
+        log.info("Request received to update diagnosis for patient ID {} by doctor ID {}", patientId, actingDoctorId);
+        MedicalRecordDTO updatedRecord = medicalRecordService.updateVisitDiagnosis(patientId, newDiagnosis, actingDoctorId);
+        return ResponseEntity.ok(updatedRecord);
+    }
+
     @PostMapping("/internal/patient-created")
     public ResponseEntity<Void> handlePatientCreated(@RequestBody PatientCreatedEvent event) {
         // Use record accessors (no 'get')

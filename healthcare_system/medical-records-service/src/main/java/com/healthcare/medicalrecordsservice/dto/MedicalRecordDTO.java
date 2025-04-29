@@ -9,5 +9,7 @@ public class MedicalRecordDTO {
     private Long patientId;
     private String patientFirstName;
     private String patientLastName;
-    private List<RecordEntryDTO> entries; // Use DTOs for entries as well
+    private List<RecordEntryDTO> entries;
+    String newDiagnosis;
+    Long actingDoctorId;// Use DTOs for entries as well
 }

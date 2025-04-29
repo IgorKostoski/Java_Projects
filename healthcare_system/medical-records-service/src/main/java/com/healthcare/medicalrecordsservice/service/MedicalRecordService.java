@@ -13,6 +13,7 @@ public interface MedicalRecordService {
     // (Optional) Create the initial record document for a new patient
     void createMedicalRecordShell(Long patientId, String firstName, String lastName);
 
+    MedicalRecordDTO updateVisitDiagnosis(Long patientId, String newDiagnosis, Long actingDoctorId);
     // Maybe methods to get specific entry types?
     // List<VisitEntryDTO> getVisitHistory(Long patientId);
 }
