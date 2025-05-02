@@ -16,6 +16,12 @@ spring:
 server:
   port: 8888
 
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health, info, prometheus # Add prometheus
+
 # Optional: Eureka registration can also be defined here if not relying on config-repo/config-server.yml for it
 # eureka:
 #   client:

@@ -14,19 +14,18 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-    // Inject the JWK Set URI from configuration
+
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") // Read the property
     private String jwkSetUri;
 
-    // Alternative: Inject Issuer URI if using that method
-    // @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
-    // private String issuerUri;
+
+
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http, ReactiveJwtDecoder jwtDecoder) throws Exception { // Inject decoder
         http
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/actuator/health/**", "/actuator/info").permitAll()
+                        .pathMatchers("/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
                         .pathMatchers("/oauth2/**", "/login", "/.well-known/openid-configuration", "/oauth2/jwks").permitAll()
                         // Re-enable authentication requirement
                         .anyExchange().authenticated()
@@ -44,8 +43,6 @@ public class SecurityConfig {
         // Create a decoder that fetches keys from the configured JWK Set URI
         return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
 
-        // --- OR --- If using issuer-uri instead:
-        // return ReactiveJwtDecoderProviderConfiguration.jwtDecoder(issuerUri); // Requires OIDC discovery
-        // return JwtDecoders.fromOidcIssuerLocation(this.issuerUri); // Simpler way using helper
+
     }
 }

@@ -1,0 +1,43 @@
+# healthcare-system/monitoring/prometheus/prometheus.yml
+global:
+  scrape_interval: 15s # How often to scrape targets. Default is 1 minute.
+  evaluation_interval: 15s # How often to evaluate rules. Default is 1 minute.
+
+scrape_configs:
+  # --- Scrape Prometheus itself (optional but useful) ---
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090'] # Prometheus runs on port 9090
+
+  # --- Scrape Spring Boot Microservices via Docker Compose Service Names ---
+  # Note: Docker Compose internal DNS resolves service names to container IPs.
+  # We target the internal port the service listens on (e.g., 8081, 8082),
+  # not necessarily the port mapped to the host.
+
+  - job_name: 'spring-micrometer'
+    metrics_path: '/actuator/prometheus' # Default path exposed by Spring Boot Actuator
+    scrape_interval: 5s # Scrape services more frequently
+    static_configs:
+      # List all your Spring Boot services here
+      - targets:
+          - 'api-gateway:8080' # Assuming gateway listens on 8080 internally
+          - 'config-server:8888'
+          - 'eureka-server:8761' # Eureka might not expose Prometheus endpoint by default
+          - 'patient-service:8081'
+          - 'doctor-service:8082'
+          - 'appointment-service:8083'
+          - 'notification-service:8084' # If it has actuator enabled
+          - 'medical-records-service:8085'
+          - 'billing-service:8086'
+          - 'auth-service:9000'
+        labels:
+          group: 'healthcare-services'
+
+  # --- Scrape RabbitMQ (if using Prometheus plugin) ---
+  # Requires enabling prometheus_rabbitmq_exporter plugin on RabbitMQ container
+  # - job_name: 'rabbitmq'
+  #   static_configs:
+  #     - targets: ['rabbitmq:15692'] # Default RabbitMQ Prometheus exporter port
+  #   metrics_path: /metrics
+
+  # --- Scrape other potential targets (e.g., databases with exporters) ---

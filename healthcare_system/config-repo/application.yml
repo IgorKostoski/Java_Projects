@@ -6,7 +6,7 @@ management:
     web:
       exposure:
         # Expose common endpoints by default. Restrict further in production profiles.
-        include: health, info, prometheus
+        include: health, info, prometheus, gateway, metrics
   endpoint:
     health:
       show-details: always # Show details in health checks (useful for dev)

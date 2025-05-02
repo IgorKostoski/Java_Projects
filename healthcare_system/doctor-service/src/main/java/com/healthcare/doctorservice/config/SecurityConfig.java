@@ -18,9 +18,9 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
                         // Require authentication for all Doctor API endpoints
-                        .requestMatchers("/api/doctors/**").authenticated() // <-- Change path
+                        .requestMatchers("/api/**").authenticated()// <-- Change path
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

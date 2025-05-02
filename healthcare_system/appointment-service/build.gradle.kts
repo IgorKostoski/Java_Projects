@@ -7,23 +7,19 @@ plugins {
 dependencies {
     // Spring Boot Starters
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-amqp") // For RabbitMQ
 
     // Spring Cloud Starters
-
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
-    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
-    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign") // For Feign clients
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j") // For Resilience4j
 
-    // Database Driver
-    runtimeOnly("org.postgresql:postgresql")
+
 
     // Observability
     implementation("io.micrometer:micrometer-tracing-bridge-brave")

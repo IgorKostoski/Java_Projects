@@ -347,6 +347,59 @@ services:
   #   ...
   # grafana:
   #   ...
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090" # Expose Prometheus UI
+    volumes:
+      # Mount the prometheus config file into the container
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      # Optional: Volume for Prometheus data persistence
+      - prometheus_data:/prometheus
+    command:
+      # Tell Prometheus where to find its config file
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      # Optional: Set storage retention time
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - healthcare-network
+    depends_on: # Optional: wait for services to start (doesn't guarantee actuator is ready)
+      - api-gateway
+      - config-server
+      - eureka-server
+      - patient-service
+      # ... add all other services
+
+  grafana:
+      image: grafana/grafana:latest
+      container_name: grafana
+      ports:
+        - "3000:3000" # Expose Grafana UI
+      volumes:
+        # Volume for Grafana data persistence (dashboards, datasources)
+        - grafana_data:/var/lib/grafana
+        # Optional: Provisioning datasources/dashboards automatically
+        # - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+        # - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      environment:
+        # Default admin user/password (CHANGE THIS!)
+        GF_SECURITY_ADMIN_USER: admin
+        GF_SECURITY_ADMIN_PASSWORD: admin
+        # Optional: Skip login page
+        # GF_AUTH_ANONYMOUS_ENABLED: true
+        # GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      networks:
+        - healthcare-network
+      depends_on:
+        - prometheus # Grafana needs Prometheus to be running
+
+  # ... (volumes definition - add prometheus_data, grafana_data) ...
+
+
+
   mongodb:
     image: mongo:6 # Use specific version
     container_name: mongodb
@@ -368,7 +421,10 @@ volumes:
   postgres_data:
   rabbitmq_data:
   mongo_data:
+  prometheus_data:
+  grafana_data:
   # mongo_data:
+
 
 # --- Network Definition ---
 networks:

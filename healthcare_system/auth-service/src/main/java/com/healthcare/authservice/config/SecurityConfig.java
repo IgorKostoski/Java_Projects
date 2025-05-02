@@ -80,8 +80,9 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests((authorize) -> authorize
                         // Allow access to actuator health/info without authentication
-                        .requestMatchers("/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
                         // Require authentication for any other request
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 // Enable form login with default settings (redirects to /login)

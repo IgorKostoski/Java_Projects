@@ -21,9 +21,9 @@ public class SecurityConfig {
                 // Define authorization rules
                 .authorizeHttpRequests(authorize -> authorize
                         // Allow access to actuator health/info endpoints without authentication
-                        .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
+                        .requestMatchers("/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
                         // Require authentication for all API endpoints
-                        .requestMatchers("/api/patients/**").authenticated()
+                        .requestMatchers("/api/**").authenticated()
                         // Secure any other endpoint (if any) - good default
                         .anyRequest().authenticated()
                 )
