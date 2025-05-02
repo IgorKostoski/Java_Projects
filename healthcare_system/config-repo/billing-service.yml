@@ -13,6 +13,11 @@ spring:
         resourceserver:
           jwt:
             jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
+spring.rabbitmq:
+  host: ${RABBITMQ_HOST:rabbitmq}
+  port: ${RABBITMQ_PORT:5672}
+  username: ${RABBITMQ_USER:guest}
+  password: ${RABBITMQ_PASS:guest}
 
   jpa:
     hibernate:
@@ -22,6 +27,17 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+healthcare:
+  amqp:
+    # Ensure exchange name matches publisher (AppointmentService)
+    exchange:
+      appointments: healthcare.appointments.exchange
+    # Define queue name and routing key this service uses
+    queue:
+      billing: billing-invoice-queue # Name of the queue for billing events
+    routingkey:
+      completed: appointment.completed
 
 # Eureka client config inherited
 
