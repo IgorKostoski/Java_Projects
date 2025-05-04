@@ -67,9 +67,10 @@ public class DoctorServiceImpl implements DoctorService {
     public void deleteDoctor(Long id) {
         logger.info("Deleting doctor with ID: {}", id);
         if (!doctorRepository.existsById(id)) {
-            logger.info("Doctor with ID {} does not exist", id);
+
             throw new ResourceNotFoundException("Doctor with ID " + id + " does not exist");
         }
+        logger.info("Deleting doctor with ID: {}", id);
         doctorRepository.deleteById(id);
         logger.info("Doctor with ID {} deleted", id);
     }

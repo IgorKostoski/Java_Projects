@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
-@EnableDiscoveryClient // Needs to discover backend services
+@EnableDiscoveryClient // Needs to discover backend services via Eureka
 public class ApiGatewayApplication {
 
     public static void main(String[] args) {

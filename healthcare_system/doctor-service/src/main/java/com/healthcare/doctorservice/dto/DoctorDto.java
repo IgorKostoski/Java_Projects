@@ -14,7 +14,7 @@ public class DoctorDto {
     private String firstName;
 
     @NotBlank(message = "Last name cannot be blank")
-    @Size(max = 50, message = "Last name cannot exceed 50 characetrs")
+    @Size(max = 50, message = "Last name cannot exceed 50 characters")
     private String lastName;
 
     @NotBlank(message = "Speciality cannot be blank")

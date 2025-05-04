@@ -1,10 +1,21 @@
-# healthcare-system/api-gateway/src/main/resources/bootstrap.yml
 spring:
   application:
-    name: api-gateway
-  config:
-    # Keep the import for Config Server config
-    import: "configserver:${CONFIG_SERVER_URI:http://config-server:8888}"
-    # Explicitly define config names and locations to search
-    name: application,bootstrap # Look for application.yml and bootstrap.yml
-    location: classpath:/,optional:classpath:/config/ # Search classpath root and optional /config subdir
+    name: api-gateway # Service name for Discovery and Config
+  cloud:
+    config:
+      # URI of the config server
+      uri: ${CONFIG_SERVER_URI:http://config-server:8888}
+      # Fail fast if config server is not available on startup (optional, default is false)
+      fail-fast: true
+      # Retry connecting to config server (optional)
+      retry:
+        initial-interval: 1000
+        max-attempts: 6
+        max-interval: 2000
+# Note: 'spring.config.import' is the preferred way in newer Spring Boot versions,
+# but 'spring.cloud.config.uri' is common in bootstrap context. If using Boot 2.4+, consider:
+# spring:
+#  application:
+#    name: api-gateway
+#  config:
+#    import: "optional:configserver:${CONFIG_SERVER_URI:http://config-server:8888}"

@@ -51,35 +51,7 @@ spring: # <-- Top-level spring key
           uri: lb://auth-service
           predicates:
             - Path=/login
-#    security:
-#      oauth2:
-#        client:
-#          # This registration might not be strictly necessary if only validating tokens,
-#          # but TokenRelay sometimes expects it. The values here don't necessarily
-#          # need to match a specific client if just validating incoming tokens.
-#          registration:
-#            gateway-client: # Just an arbitrary registration name
-#              provider: spring # Reference the provider below
-#              client-id: api-gateway # Can be anything if not performing flows
-#              client-secret: secret # Can be anything if not performing flows
-#              authorization-grant-type: authorization_code # Placeholder
-#              redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}" # Placeholder
-#              scope: openid # Placeholder
-#          provider:
-#            # Provider details point to our Auth Server for discovery/jwks
-#            spring: # Name matching registration above
-#              issuer-uri: ${AUTH_SERVER_ISSUER_URI:http://auth-service:9000} # Use Issuer URI here
-#    resourceserver:
-#      jwt:
-#        # Keep the direct value here as a potential backup if TokenRelay doesn't fully configure it
-#        jwk-set-uri: http://auth-service:9000/oauth2/jwks
-##  # --- CORRECT Placement for Security Block ---
-#security: # <-- Sibling security key, under spring:
-#   oauth2:
-#   resourceserver:
-#       jwt:
-#          jwk-set-uri: http://auth-service:9000/oauth2/jwks
-#          # Optional: issuer-uri, audiences
+
 
 ## --- Corrected Resilience4j Block Indentation ---
 resilience4j.circuitbreaker:

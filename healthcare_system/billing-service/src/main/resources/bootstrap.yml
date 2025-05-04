@@ -1,7 +1,7 @@
-# healthcare-system/billing-service/src/main/resources/bootstrap.yml
+# healthcare-system/appointment-service/src/main/resources/bootstrap.yml
 spring:
   application:
-    name: billing-service # Service name
+    name: billing-service
   config:
     import: "configserver:${CONFIG_SERVER_URI:http://config-server:8888}"
   cloud:
@@ -9,8 +9,15 @@ spring:
       enabled: true
       import-check:
         enabled: true
+  # --- Add Security Properties Needed Early ---
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Define JWK Set URI here
+          jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
 
-  eureka:
-    client:
-      registry-fetch-interval-seconds: 5
-      initial-instance-info-replication-interval-seconds: 5
+eureka:
+  client:
+    registry-fetch-interval-seconds: 5
+    initial-instance-info-replication-interval-seconds: 5

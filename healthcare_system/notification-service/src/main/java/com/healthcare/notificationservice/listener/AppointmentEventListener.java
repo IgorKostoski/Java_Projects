@@ -13,7 +13,7 @@ public class AppointmentEventListener {
 
     // Define the queue name directly or reference the bean name/property
     // Using SpEL to reference the queue name property defined in RabbitMQConfig
-    public static final String NOTIFICATIONS_QUEUE = "${healthcare.amqp.queue.notifications}";
+
 
     /**
      * Listens to the specified queue for messages.
@@ -22,11 +22,12 @@ public class AppointmentEventListener {
      *
      * @param appointmentDTO The deserialized appointment data from the message.
      */
-    @RabbitListener(queues = NOTIFICATIONS_QUEUE)
+    @RabbitListener(queues = "#{environment['healthcare.amqp.queue.notifications'] ?: 'appointment-notifications-queue'}")
     public void handleAppointmentEvent(AppointmentDTO appointmentDTO) {
+        String resolvedQueueName = "appointment-notifications-queue";
         // Acknowledge receipt (logging serves as acknowledgment for now)
         log.info("Received appointment event from queue '{}': ID={}, Status={}, PatientID={}, DoctorID={}, DateTime={}",
-                NOTIFICATIONS_QUEUE, // Log the actual queue name being listened to
+                resolvedQueueName, // Log the actual queue name being listened to
                 appointmentDTO.getId(),
                 appointmentDTO.getStatus(),
                 appointmentDTO.getPatientId(),

@@ -8,11 +8,14 @@ spring:
     username: ${DB_USER:user}
     password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
-    security:
-      oauth2:
-        resourceserver:
-          jwt:
-            jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
+
+security:
+  oauth2:
+    resourceserver:
+      jwt:
+        jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
+
+
 spring.rabbitmq:
   host: ${RABBITMQ_HOST:rabbitmq}
   port: ${RABBITMQ_PORT:5672}

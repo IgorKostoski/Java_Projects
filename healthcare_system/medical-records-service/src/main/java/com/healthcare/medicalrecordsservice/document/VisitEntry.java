@@ -43,15 +43,7 @@ public class VisitEntry extends RecordEntry {
         this.setRecordedByDoctorId(updatedByDoctorId);
     }
 
-    public void UpdateDiagnosis(String newDiagnosis, Long updatedByDoctorId) {
-        if (newDiagnosis != null && !newDiagnosis.isBlank()) {
-            this.diagnosisHistory.add(new StateEntry<>(newDiagnosis, updatedByDoctorId));
-            this.setEntryTimestamp(LocalDateTime.now());
-            this.setRecordedByDoctorId(updatedByDoctorId);
-        } else {
-            System.err.println("Attempted to update diagnosis with invalid value for visit entry.");
-        }
-    }
+
 
     public List<StateEntry<String>> getDiagnosisHistory() {
         return diagnosisHistory;

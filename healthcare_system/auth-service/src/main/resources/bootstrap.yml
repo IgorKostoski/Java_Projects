@@ -1,4 +1,4 @@
-# healthcare-system/auth-service/src/main/resources/bootstrap.yml
+# bootstrap.yml
 spring:
   application:
     name: auth-service # Service name
@@ -9,8 +9,17 @@ spring:
       enabled: true
       import-check:
         enabled: true
+  # Remove eureka from under spring if it was there
 
-  eureka:
-    client:
-      registry-fetch-interval-seconds: 5
-      initial-instance-info-replication-interval-seconds: 5
+# Corrected Structure: eureka at the top level
+eureka:
+  client:
+    serviceUrl: # Added serviceUrl example, usually needed
+      defaultZone: ${EUREKA_URI:http://eureka-server:8761/eureka}
+    register-with-eureka: true # Explicitly true if needed
+    fetch-registry: true       # Explicitly true if needed
+    registry-fetch-interval-seconds: 5
+    # Removed initial-instance-info-replication-interval-seconds as it's less common
+    # instance-info-replication-interval-seconds: 5 # Correct property name if needed
+  instance:
+    prefer-ip-address: true # Often useful in containers

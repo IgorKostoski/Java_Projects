@@ -26,6 +26,8 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -34,6 +36,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Set;
 import java.util.UUID;
 
 @Configuration
@@ -45,6 +48,30 @@ public class SecurityConfig {
 
     public SecurityConfig(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
+    }
+
+    @Bean
+    public OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer() {
+        return (context) -> {
+            // Check if the principal is an OAuth2 client (Client Credentials grant)
+            // or if dealing with user authentication context
+            Set<String> scopes = context.getAuthorizedScopes(); // Get the scopes already authorized for this token
+
+            if (!scopes.isEmpty()) {
+                // Add scopes to the standard 'scope' claim (space-separated string)
+                // OR use 'scp' claim if preferred by resource servers
+                context.getClaims().claim("scope", String.join(" ", scopes));
+
+                // Optional: Add authorities derived from scopes (prefixed with SCOPE_)
+                // This can sometimes simplify @PreAuthorize checks if you only use hasAuthority()
+                // context.getClaims().claim("authorities", scopes.stream()
+                //         .map(scope -> "SCOPE_" + scope)
+                //         .collect(Collectors.toList()));
+            }
+
+            // You can add other custom claims here if needed
+            // context.getClaims().claim("custom-claim", "custom-value");
+        };
     }
 
     // Define the main SecurityFilterChain for the Authorization Server endpoints
@@ -82,7 +109,7 @@ public class SecurityConfig {
                         // Allow access to actuator health/info without authentication
                         .requestMatchers("/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
                         // Require authentication for any other request
-                        .requestMatchers("/api/**").authenticated()
+
                         .anyRequest().authenticated()
                 )
                 // Enable form login with default settings (redirects to /login)
@@ -142,10 +169,10 @@ public class SecurityConfig {
                 .clientSecret(passwordEncoder.encode("service-secret"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .scope("patient:read")
-                .scope("docotor:read")
-                .scope("iinternal.communication")
-
+                .scope("patient:read")   // <-- ADD
+                .scope("doctor:read")    // <-- ADD
+                .scope("internal.communication") // Keep or remove based on need
+                // Add other scopes like appointment:read if needed for service-to-service
                 .build();
 
 

@@ -22,15 +22,16 @@ public class AppointmentEventListener {
     // Define the queue name from properties
     public static final String BILLING_QUEUE = "${healthcare.amqp.queue.billing}";
 
-    @Autowired // Use @Autowired if not using @RequiredArgsConstructor on the class
+    @Autowired
     public AppointmentEventListener(InvoiceService invoiceService) {
         this.invoiceService = invoiceService;
     }
 
-    @RabbitListener(queues = BILLING_QUEUE)
+    @RabbitListener(queues = "#{environment['healthcare.amqp.queue.billing'] ?: 'billing-invoice-queue'}")
     public void handleAppointmentCompleted(AppointmentDTO completedAppointment) {
+        String queueNameResolved = "billing-invoice-queue";
         log.info("Received Appointment COMPLETED event from queue '{}': Appointment ID={}, Patient ID={}",
-                BILLING_QUEUE,
+                queueNameResolved,
                 completedAppointment.getId(),
                 completedAppointment.getPatientId());
 

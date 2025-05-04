@@ -1,24 +1,34 @@
-# healthcare-system/doctor-service/src/main/resources/bootstrap.yml
+# bootstrap.yml
 spring:
   application:
     name: doctor-service
+
   config:
     import: "configserver:${CONFIG_SERVER_URI:http://config-server:8888}"
+
   cloud:
     config:
       enabled: true
       import-check:
         enabled: true
+
   # --- Add Security Properties Needed Early ---
   security:
     oauth2:
       resourceserver:
         jwt:
           # Point to the Auth Service JWK Set endpoint
-          jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks}
+          jwk-set-uri: ${AUTH_SERVER_JWKS_URI:http://auth-service:9000/oauth2/jwks} # <-- ADD THIS
           # Optional: issuer-uri, audiences
 
-  eureka:
-    client:
-      registry-fetch-interval-seconds: 5
-      initial-instance-info-replication-interval-seconds: 5
+# Eureka config needs to be moved outside the spring: block
+eureka:
+  client:
+    serviceUrl: # Added serviceUrl example, usually needed
+      defaultZone: ${EUREKA_URI:http://eureka-server:8761/eureka}
+    register-with-eureka: true
+    fetch-registry: true
+    # Removed initial-instance-info-replication-interval-seconds, less common
+    # instance-info-replication-interval-seconds: 5 # Correct property name if needed
+  instance:
+    prefer-ip-address: true

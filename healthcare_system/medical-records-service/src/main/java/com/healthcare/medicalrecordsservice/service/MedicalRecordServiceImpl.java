@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.stream.Collectors;
 
 // --- End imports ---
@@ -118,44 +117,52 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     }
 
     private MedicalRecordDTO convertToDTO(MedicalRecord record) {
-        MedicalRecordDTO dto = new MedicalRecordDTO();
+      if (record == null) return null;
+      MedicalRecordDTO dto = new MedicalRecordDTO();
 
         BeanUtils.copyProperties(record, dto, "entries");
 
 
         if (record.getEntries() != null) {
             dto.setEntries(record.getEntries().stream()
-                    .map(this::convertToEntryDTO)
+                    .map(this::mapEntryDto)
                             .filter(java.util.Objects::nonNull)
                     .collect(Collectors.toList()));
-        } else {
-
-            dto.setEntries(Collections.emptyList());
         }
         return dto;
     }
 
-    private RecordEntryDTO convertToEntryDTO(RecordEntry entry) {
-        // Use the correct top-level class names
+    private RecordEntryDTO mapEntryDto(RecordEntry entry) {
         if (entry instanceof VisitEntry visitEntry) {
             VisitEntryDTO dto = new VisitEntryDTO();
-            BeanUtils.copyProperties(entry, dto, "diagnosisHistory");
-            // Ensure common fields are copied if not handled by BeanUtils correctly across hierarchy
-            dto.setReason(visitEntry.getReason());
-            dto.setNotes(visitEntry.getNotes());
+            BeanUtils.copyProperties(visitEntry, dto, "diagnosisHistory");
             dto.setDiagnosis(visitEntry.getCurrentDiagnosis());
-
             return dto;
         } else if (entry instanceof LabResultEntry labEntry) {
             LabResultEntryDTO dto = new LabResultEntryDTO();
             BeanUtils.copyProperties(labEntry, dto);
-            // Ensure common fields are copied
-
             return dto;
         }
-        log.warn("Cannot convert unknown RecordEntry type: {}", entry.getClass().getName());
+        log.warn("Unknown record entry type: {}", entry.getClass());
         return null;
     }
+
+   private RecordEntry mapDtoToEntry(RecordEntryDTO dto) {
+        if (dto instanceof VisitEntryDTO visitDto) {
+            VisitEntry entry = new VisitEntry();
+            BeanUtils.copyProperties(visitDto, entry, "diagnosis");
+            if (visitDto.getDiagnosis() != null) {
+                entry.updateDiagnosisHistory(visitDto.getDiagnosis(), visitDto.getRecordedByDoctorId());
+            }
+            return entry;
+        } else if (dto instanceof LabResultEntryDTO labDto) {
+            LabResultEntry entry = new LabResultEntry();
+            BeanUtils.copyProperties(labDto, entry);
+            return entry;
+        }
+        log.warn("Unknown record entry type: {}", dto.getClass());
+        return null;
+   }
 
     private RecordEntry convertToEntryDocument(RecordEntryDTO dto) {
         // Assuming RecordEntryDTO has getEntryType(), getRecordedByDoctorId(), getEntryTimestamp() via Lombok @Data

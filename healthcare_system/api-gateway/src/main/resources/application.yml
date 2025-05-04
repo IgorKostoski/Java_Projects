@@ -1,7 +1,88 @@
-# healthcare-system/api-gateway/src/main/resources/application.yml
+server:
+  port: 8080 # Default port for the gateway
+
+# Default security config (will be overridden by Config Server if present there)
 spring:
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://auth-service:9000/oauth2/jwks
+          jwk-set-uri: ${JWK_SET_URI:http://auth-service:9000/oauth2/jwks} # Default/fallback JWK URI
+
+  # Gateway Route Definitions (will be overridden by Config Server if present there)
+  cloud:
+    gateway:
+      # Default filters applied to all routes (optional)
+      default-filters:
+        - TokenRelay # Example: Relay the incoming JWT token to downstream services
+        # - RemoveRequestHeader=Cookie # Example: Don't forward cookies
+
+      routes:
+        - id: user-service-route
+          uri: lb://user-service # Route to user-service using Eureka load balancing (lb:// prefix)
+          predicates:
+            - Path=/api/users/** # Match requests starting with /api/users/
+          filters:
+            - StripPrefix=2 # Removes /api/users before forwarding -> /
+
+        - id: appointment-service-route
+          uri: lb://appointment-service
+          predicates:
+            - Path=/api/appointments/**
+          filters:
+            - StripPrefix=2 # Removes /api/appointments before forwarding -> /
+
+# Eureka Client Configuration (will be overridden by Config Server if present there)
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://eureka-server:8761/eureka}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    # Use IP address preferably, useful in containerized environments
+    prefer-ip-address: true
+    # How often the gateway sends heartbeat to Eureka (seconds)
+    lease-renewal-interval-in-seconds: 10
+    # How long Eureka waits for a heartbeat before removing the instance (seconds)
+    lease-expiration-duration-in-seconds: 30
+    # Instance ID format (optional)
+    # instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        # Expose specific endpoints (match SecurityConfig)
+        include: health, info, prometheus, gateway # Include gateway routes endpoint
+  endpoint:
+    health:
+      show-details: when_authorized # Show details based on security config
+      # Enable readiness/liveness probes for Kubernetes (requires actuator)
+      probes:
+        enabled: true
+    gateway:
+      enabled: true # Enable the /actuator/gateway endpoint
+
+  # Tracing Configuration (e.g., Zipkin via Brave)
+  tracing:
+    sampling:
+      probability: 1.0 # Sample 100% of requests (adjust for production)
+  #   propagation:
+  #     type: W3C # Or B3
+
+  # Prometheus Metrics Configuration
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+# Logging configuration (example)
+logging:
+  level:
+    root: INFO
+    com.healthcare.apigateway: DEBUG
+    org.springframework.cloud.gateway: TRACE # Turn up gateway logging for debugging routes/filters
+    org.springframework.security: DEBUG     # Turn up security logging
+    reactor.netty: INFO                    # Netty logging can be verbose
