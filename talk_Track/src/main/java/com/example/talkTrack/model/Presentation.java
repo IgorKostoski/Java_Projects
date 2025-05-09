@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "presentations")
@@ -48,7 +49,7 @@ public class Presentation {
 
     public void addSlide(Slide slide) {
         slides.add(slide);
-        slides.setPresentation(this);
+        slide.setPresentation(this);
     }
 
     public void removeSlide(Slide slide) {
